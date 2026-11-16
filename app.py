@@ -168,18 +168,34 @@ elif mode == "Upload image":
     if uploaded:
         image = Image.open(uploaded)
         st.image(image, use_container_width=True)
-        extracted = pytesseract.image_to_string(image)
-        with st.expander("Text read from the image"):
-            st.write(extracted)
-        show_result(extracted)
+        try:
+            with st.spinner("Reading text from the image..."):
+                extracted = pytesseract.image_to_string(image)
+        except Exception as e:
+            st.error(f"OCR failed: {e}")
+            st.stop()
+        if not extracted.strip():
+            st.warning("No text could be read from this image. Try a clearer, straighter photo.")
+        else:
+            with st.expander("Text read from the image"):
+                st.write(extracted)
+            show_result(extracted)
 
 elif mode == "Take photo":
     photo = st.camera_input("Take a photo of a news article")
     if photo:
-        extracted = pytesseract.image_to_string(Image.open(photo))
-        with st.expander("Text read from the photo"):
-            st.write(extracted)
-        show_result(extracted)
+        try:
+            with st.spinner("Reading text from the photo..."):
+                extracted = pytesseract.image_to_string(Image.open(photo))
+        except Exception as e:
+            st.error(f"OCR failed: {e}")
+            st.stop()
+        if not extracted.strip():
+            st.warning("No text could be read from this photo. Try better lighting and hold the page flat.")
+        else:
+            with st.expander("Text read from the photo"):
+                st.write(extracted)
+            show_result(extracted)
 
 # ---- Footer note ----
 st.markdown(
